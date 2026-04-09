@@ -3202,21 +3202,16 @@ class SC_Admin {
             exit;
         }
 
-        $event_start_ts = strtotime((string) ($event->start_datetime ?? ''));
-        $event_end_ts = strtotime((string) ($event->end_datetime ?? ''));
-        if (!$event_start_ts || !$event_end_ts) {
+        $event_start_cst = self::to_cst_datetime((string) ($event->start_datetime ?? ''));
+        $event_end_cst = self::to_cst_datetime((string) ($event->end_datetime ?? ''));
+        if (!$event_start_cst || !$event_end_cst) {
             wp_safe_redirect(admin_url('admin.php?page=sc-events&event_id=' . $event_id . '&sc_error=task_wizard_event_datetime_invalid'));
             exit;
         }
-        if ($event_end_ts <= $event_start_ts) {
+        if ($event_end_cst <= $event_start_cst) {
             wp_safe_redirect(admin_url('admin.php?page=sc-events&event_id=' . $event_id . '&sc_error=task_wizard_event_time_order'));
             exit;
         }
-
-        $event_start_cst = new DateTime('@' . $event_start_ts);
-        $event_start_cst->setTimezone(self::cst_timezone());
-        $event_end_cst = new DateTime('@' . $event_end_ts);
-        $event_end_cst->setTimezone(self::cst_timezone());
 
         $interval_seconds = $interval_minutes * MINUTE_IN_SECONDS;
         $cursor = clone $event_start_cst;
